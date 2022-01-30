@@ -17,7 +17,6 @@ type RowColumType = {
 
 const Home: NextPage = () => {
   const [blocks, setBlocks] = useState<string[][]>([]);
-  const [currentWord, setCurrentWord] = useState('');
 
   useEffect(() => {
     let blockGrid: string[][] = [];
@@ -54,6 +53,7 @@ const Home: NextPage = () => {
       }
 
       const gridCopy = [...blocks];
+      const currentWord = blocks[rowIdx].join('');
 
       switch (e.key) {
         case 'Backspace': {
@@ -68,7 +68,6 @@ const Home: NextPage = () => {
               updateFocus({ rowIdx, colIdx: 0 });
             }, 100);
           } else {
-            setCurrentWord(currentWord.slice(0, currentWord.length - 1));
             setTimeout(() => {
               updateFocus({ rowIdx, colIdx: prevCol });
             }, 100);
@@ -91,14 +90,12 @@ const Home: NextPage = () => {
               //todo: handle game over
               alert('game over');
             }
-            setCurrentWord('');
           }
           break;
         }
         default: {
           const updatedString = currentWord.split('');
           updatedString[colIdx] = e.key;
-          setCurrentWord(updatedString.join(''));
           let nextCol = colIdx + 1;
           gridCopy[rowIdx][colIdx] = e.key;
           if (colIdx === NUMBER_OF_COLUMNS - 1) {
