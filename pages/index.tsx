@@ -1,9 +1,14 @@
 import type { NextPage } from 'next';
 import Head from 'next/head';
 import { useEffect, useState } from 'react';
-import Block from '../components/word/Block';
+import { Block } from '../components/Word';
 import { NUMBER_OF_COLUMNS, NUMBER_OF_ROWS } from '../constants/variables';
 import styles from '../styles/Home.module.css';
+
+type RowColumType = {
+  rowIdx: number;
+  colIdx: number;
+};
 
 const Home: NextPage = () => {
   const [blocks, setBlocks] = useState<string[][]>([]);
@@ -20,17 +25,69 @@ const Home: NextPage = () => {
     setBlocks(blockGrid);
   }, []);
 
-  const updateFocus = ({ row, column }: { row: Number; column: number }) => {
-    console.log({ row, column });
-    const nodes = document.getElementsByName(`${row}${column}`);
+  const updateFocus = ({ rowIdx, colIdx }: RowColumType) => {
+    const nodes = document.getElementsByName(`${rowIdx}${colIdx}`);
     if (nodes.length > 0) {
       nodes[0].focus();
     }
   };
 
   useEffect(() => {
-    updateFocus({ row: 0, column: 0 });
+    updateFocus({ rowIdx: 0, colIdx: 0 });
   }, [blocks.length]);
+
+  const genericOnChange =
+    ({ rowIdx, colIdx }: RowColumType) =>
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (
+        !/^[a-zA-Z]$/.test(e.key) &&
+        e.key !== 'Backspace' &&
+        e.key !== 'Enter'
+      ) {
+        return;
+      }
+
+      const gridCopy = [...blocks];
+
+      switch (e.key) {
+        case 'Backspace': {
+          let prevCol = colIdx - 1;
+          gridCopy[rowIdx][colIdx] = '';
+          if (colIdx === 0) {
+            setTimeout(() => {
+              updateFocus({ rowIdx, colIdx: 0 });
+            }, 100);
+          }
+          updateFocus({ rowIdx, colIdx: prevCol });
+          break;
+        }
+        case 'Enter': {
+          if (colIdx === NUMBER_OF_COLUMNS - 1) {
+            if (rowIdx !== NUMBER_OF_ROWS - 1) {
+              updateFocus({ rowIdx: rowIdx + 1, colIdx: 0 });
+            } else {
+              //todo: handle game over
+            }
+          }
+          break;
+        }
+        default: {
+          let nextCol = colIdx + 1;
+          gridCopy[rowIdx][colIdx] = e.key;
+          if (colIdx === NUMBER_OF_COLUMNS - 1) {
+            setTimeout(() => {
+              updateFocus({
+                rowIdx,
+                colIdx: NUMBER_OF_COLUMNS - 1,
+              });
+            }, 100);
+          } else {
+            updateFocus({ rowIdx, colIdx: nextCol });
+          }
+        }
+      }
+      setBlocks([...gridCopy]);
+    };
 
   return (
     <div className={styles.container}>
@@ -50,55 +107,7 @@ const Home: NextPage = () => {
             return (
               <div key={rowIdx} className='flex gap-3'>
                 {row.map((column, colIdx) => {
-                  const onChange = (
-                    e: React.KeyboardEvent<HTMLInputElement>
-                  ) => {
-                    if (
-                      !/^[a-zA-Z]$/.test(e.key) &&
-                      e.key !== 'Backspace' &&
-                      e.key !== 'Enter'
-                    ) {
-                      return;
-                    }
-
-                    const gridCopy = [...blocks];
-
-                    if (e.key === 'Backspace') {
-                      let prevCol = colIdx - 1;
-                      gridCopy[rowIdx][colIdx] = '';
-                      if (colIdx === 0) {
-                        setTimeout(() => {
-                          updateFocus({ row: rowIdx, column: 0 });
-                        }, 100);
-                      }
-                      updateFocus({ row: rowIdx, column: prevCol });
-                    } else if (e.key === 'Enter') {
-                      if (colIdx === NUMBER_OF_COLUMNS - 1) {
-                        if (rowIdx !== NUMBER_OF_ROWS - 1) {
-                          console.log('enter', colIdx, rowIdx);
-                          updateFocus({ row: rowIdx + 1, column: 0 });
-                        } else {
-                        }
-                      }
-                    } else {
-                      let nextCol = colIdx + 1;
-                      gridCopy[rowIdx][colIdx] = e.key;
-                      if (colIdx === NUMBER_OF_COLUMNS - 1) {
-                        console.log('I am here', e.key);
-                        setTimeout(() => {
-                          updateFocus({
-                            row: rowIdx,
-                            column: NUMBER_OF_COLUMNS - 1,
-                          });
-                        }, 100);
-                      } else {
-                        updateFocus({ row: rowIdx, column: nextCol });
-                      }
-                    }
-
-                    setBlocks([...gridCopy]);
-                  };
-
+                  const onChange = genericOnChange({ rowIdx, colIdx });
                   return (
                     <Block
                       key={column + colIdx}
