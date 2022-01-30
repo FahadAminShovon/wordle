@@ -11,7 +11,7 @@ const Block = ({ value = '', onChange, name }: PropType) => {
     <div className=' border-zinc-900 border-2 my-2 flex items-center justify-center rounded-md bg-slate-600 overflow-hidden'>
       <div className='bg-slate-800 h-16 w-16 flex items-center justify-center'>
         <input
-          className='bg-slate-800 text-5xl text-slate-100 font-semibold outline-none uppercase w-16  text-center cursor-default caret-transparent'
+          className='bg-slate-800 text-5xl text-slate-100 font-semibold outline-none uppercase w-16  text-center cursor-default'
           onKeyDown={onChange}
           maxLength={1}
           value={value}

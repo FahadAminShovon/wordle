@@ -2,8 +2,13 @@ import type { NextPage } from 'next';
 import Head from 'next/head';
 import { useEffect, useState } from 'react';
 import { Block } from '../components/Word';
-import { NUMBER_OF_COLUMNS, NUMBER_OF_ROWS } from '../constants/variables';
+import {
+  CORRECT_WORD,
+  NUMBER_OF_COLUMNS,
+  NUMBER_OF_ROWS,
+} from '../constants/variables';
 import styles from '../styles/Home.module.css';
+import { isWinner } from '../utils/helpers';
 
 type RowColumType = {
   rowIdx: number;
@@ -12,6 +17,7 @@ type RowColumType = {
 
 const Home: NextPage = () => {
   const [blocks, setBlocks] = useState<string[][]>([]);
+  const [currentWord, setCurrentWord] = useState('');
 
   useEffect(() => {
     let blockGrid: string[][] = [];
@@ -57,21 +63,36 @@ const Home: NextPage = () => {
             setTimeout(() => {
               updateFocus({ rowIdx, colIdx: 0 });
             }, 100);
+          } else {
+            setCurrentWord(currentWord.slice(0, currentWord.length - 1));
+            updateFocus({ rowIdx, colIdx: prevCol });
           }
-          updateFocus({ rowIdx, colIdx: prevCol });
           break;
         }
         case 'Enter': {
-          if (colIdx === NUMBER_OF_COLUMNS - 1) {
+          if (isWinner({ currentWord, correctWord: CORRECT_WORD })) {
+            //todo: handle winner
+            alert('winner');
+            return;
+          }
+          if (
+            colIdx === NUMBER_OF_COLUMNS - 1 &&
+            currentWord.length >= NUMBER_OF_COLUMNS
+          ) {
             if (rowIdx !== NUMBER_OF_ROWS - 1) {
               updateFocus({ rowIdx: rowIdx + 1, colIdx: 0 });
             } else {
               //todo: handle game over
+              alert('game over');
             }
+            setCurrentWord('');
           }
           break;
         }
         default: {
+          const updatedString = currentWord.split('');
+          updatedString[colIdx] = e.key;
+          setCurrentWord(updatedString.join(''));
           let nextCol = colIdx + 1;
           gridCopy[rowIdx][colIdx] = e.key;
           if (colIdx === NUMBER_OF_COLUMNS - 1) {
