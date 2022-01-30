@@ -58,14 +58,20 @@ const Home: NextPage = () => {
       switch (e.key) {
         case 'Backspace': {
           let prevCol = colIdx - 1;
-          gridCopy[rowIdx][colIdx] = '';
+          if (gridCopy[rowIdx][colIdx]) {
+            gridCopy[rowIdx][colIdx] = '';
+          } else {
+            gridCopy[rowIdx][prevCol] = '';
+          }
           if (colIdx === 0) {
             setTimeout(() => {
               updateFocus({ rowIdx, colIdx: 0 });
             }, 100);
           } else {
             setCurrentWord(currentWord.slice(0, currentWord.length - 1));
-            updateFocus({ rowIdx, colIdx: prevCol });
+            setTimeout(() => {
+              updateFocus({ rowIdx, colIdx: prevCol });
+            }, 100);
           }
           break;
         }
