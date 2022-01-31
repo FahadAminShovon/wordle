@@ -1,13 +1,9 @@
 import type { NextPage } from 'next';
 import Head from 'next/head';
-import { useEffect, useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { Modal } from '../components/Modal/Modal';
 import { Block } from '../components/Word';
-import {
-  CORRECT_WORD,
-  NUMBER_OF_COLUMNS,
-  NUMBER_OF_ROWS,
-} from '../constants/variables';
+import { NUMBER_OF_COLUMNS, NUMBER_OF_ROWS } from '../constants/variables';
 import styles from '../styles/Home.module.css';
 import { getBlockGrid, isWinner } from '../utils/helpers';
 
@@ -15,8 +11,11 @@ type RowColumType = {
   rowIdx: number;
   colIdx: number;
 };
+type PropType = {
+  correctWord: string;
+};
 
-const Home: NextPage = () => {
+const Home: NextPage<PropType> = ({ correctWord }) => {
   const [blocks, setBlocks] = useState<string[][]>([]);
   const [completeRows, setCompleteRows] = useState<number[]>([]);
   const [result, setResult] = useState<string>('');
@@ -52,7 +51,7 @@ const Home: NextPage = () => {
     const res = blocks
       .map((block) => {
         return getBlockGrid({
-          correctString: CORRECT_WORD,
+          correctString: correctWord,
           currentString: block.join(''),
         });
       })
@@ -95,7 +94,7 @@ const Home: NextPage = () => {
           break;
         }
         case 'Enter': {
-          if (isWinner({ currentWord, correctWord: CORRECT_WORD })) {
+          if (isWinner({ currentWord, correctWord })) {
             //todo: handle winner
             setCompleteRows([...completeRows, rowIdx]);
             setTimeout(() => {
@@ -159,7 +158,7 @@ const Home: NextPage = () => {
                   const onChange = genericOnChange({ rowIdx, colIdx });
                   return (
                     <Block
-                      correctString={CORRECT_WORD}
+                      correctString={correctWord}
                       currentString={blocks[rowIdx].join('')}
                       currentIndex={colIdx}
                       isComplete={completeRows.includes(rowIdx)}
@@ -178,5 +177,15 @@ const Home: NextPage = () => {
     </div>
   );
 };
+
+export async function getStaticProps() {
+  // Call an external API endpoint to get posts.
+  // You can use any data fetching library
+  return {
+    props: {
+      correctWord: process.env.TODAYS_WORD,
+    },
+  };
+}
 
 export default Home;

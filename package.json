@@ -6,7 +6,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "export": "next build && next export"
+    "export": "next build && next export",
+    "env-setup": "cp .sample-env .env"
   },
   "dependencies": {
     "@types/react-modal": "^3.13.1",
