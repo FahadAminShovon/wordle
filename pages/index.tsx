@@ -2,7 +2,7 @@ import type { NextPage } from 'next';
 import Head from 'next/head';
 import { useEffect, useState } from 'react';
 import { Modal } from '../components/Modal/Modal';
-import { Block } from '../components/Word';
+import { Block } from '../components/Word1';
 import {
   CORRECT_WORD,
   NUMBER_OF_COLUMNS,
