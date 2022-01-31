@@ -1,3 +1,5 @@
+import { NUMBER_OF_COLUMNS } from '../constants/variables';
+
 export const isWinner = ({
   correctWord,
   currentWord,
@@ -93,4 +95,34 @@ export const getColors = ({
     textColor,
     status,
   };
+};
+
+const mappedEmoji = {
+  green: '🟩',
+  yellow: '🟨',
+  black: '⬜',
+};
+
+export const getBlockGrid = ({
+  correctString,
+  currentString,
+}: {
+  correctString: string;
+  currentString: string;
+}) => {
+  if (currentString === '')
+    return mappedEmoji['black'].repeat(NUMBER_OF_COLUMNS).split('').join(' ');
+  return currentString
+    .split('')
+    .map((char, idx) =>
+      getColors({
+        correctString,
+        currentString,
+        currentIndex: idx,
+        value: char,
+        isComplete: true,
+      })
+    )
+    .map(({ status }) => mappedEmoji[status])
+    .join(' ');
 };

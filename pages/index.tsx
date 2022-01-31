@@ -1,6 +1,7 @@
 import type { NextPage } from 'next';
 import Head from 'next/head';
 import { useEffect, useState } from 'react';
+import { Modal } from '../components/Modal/Modal';
 import { Block } from '../components/Word';
 import {
   CORRECT_WORD,
@@ -8,7 +9,7 @@ import {
   NUMBER_OF_ROWS,
 } from '../constants/variables';
 import styles from '../styles/Home.module.css';
-import { isWinner } from '../utils/helpers';
+import { getBlockGrid, isWinner } from '../utils/helpers';
 
 type RowColumType = {
   rowIdx: number;
@@ -18,6 +19,11 @@ type RowColumType = {
 const Home: NextPage = () => {
   const [blocks, setBlocks] = useState<string[][]>([]);
   const [completeRows, setCompleteRows] = useState<number[]>([]);
+  const [result, setResult] = useState<string>('');
+  const [showModal, setShowModal] = useState(false);
+  const openModal = () => setShowModal(true);
+  const [label, setLabel] = useState('');
+  // const closeModal = setShowModal(false);
 
   useEffect(() => {
     let blockGrid: string[][] = [];
@@ -41,6 +47,19 @@ const Home: NextPage = () => {
   useEffect(() => {
     updateFocus({ rowIdx: 0, colIdx: 0 });
   }, [blocks.length]);
+
+  const handleGameOver = () => {
+    const res = blocks
+      .map((block) => {
+        return getBlockGrid({
+          correctString: CORRECT_WORD,
+          currentString: block.join(''),
+        });
+      })
+      .join('\n');
+    setResult(res);
+    openModal();
+  };
 
   const genericOnChange =
     ({ rowIdx, colIdx }: RowColumType) =>
@@ -80,7 +99,8 @@ const Home: NextPage = () => {
             //todo: handle winner
             setCompleteRows([...completeRows, rowIdx]);
             setTimeout(() => {
-              alert('winner');
+              handleGameOver();
+              setLabel('Congratulations for completing the puzzle');
             }, 500);
             return;
           }
@@ -89,8 +109,10 @@ const Home: NextPage = () => {
             if (rowIdx !== NUMBER_OF_ROWS - 1) {
               updateFocus({ rowIdx: rowIdx + 1, colIdx: 0 });
             } else {
-              //todo: handle game over
-              alert('game over');
+              setTimeout(() => {
+                handleGameOver();
+                setLabel("Having a bad day ? Don't worry it's just a game");
+              }, 500);
             }
           }
           break;
@@ -122,6 +144,7 @@ const Home: NextPage = () => {
         <meta name='description' content='wordle clone' />
         <link rel='icon' href='/favicon.ico' />
       </Head>
+      <Modal copyText={result} isOpen={showModal} label={label} />
       <div
         className='h-screen bg-slate-700 flex items-center justify-center'
         onMouseDown={(e) => {
