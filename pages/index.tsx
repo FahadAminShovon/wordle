@@ -17,6 +17,7 @@ type RowColumType = {
 
 const Home: NextPage = () => {
   const [blocks, setBlocks] = useState<string[][]>([]);
+  const [completeRows, setCompleteRows] = useState<number[]>([]);
 
   useEffect(() => {
     let blockGrid: string[][] = [];
@@ -77,13 +78,14 @@ const Home: NextPage = () => {
         case 'Enter': {
           if (isWinner({ currentWord, correctWord: CORRECT_WORD })) {
             //todo: handle winner
-            alert('winner');
+            setCompleteRows([...completeRows, rowIdx]);
+            setTimeout(() => {
+              alert('winner');
+            }, 500);
             return;
           }
-          if (
-            colIdx === NUMBER_OF_COLUMNS - 1 &&
-            currentWord.length >= NUMBER_OF_COLUMNS
-          ) {
+          if (currentWord.length === NUMBER_OF_COLUMNS) {
+            setCompleteRows([...completeRows, rowIdx]);
             if (rowIdx !== NUMBER_OF_ROWS - 1) {
               updateFocus({ rowIdx: rowIdx + 1, colIdx: 0 });
             } else {
@@ -134,6 +136,10 @@ const Home: NextPage = () => {
                   const onChange = genericOnChange({ rowIdx, colIdx });
                   return (
                     <Block
+                      correctString={CORRECT_WORD}
+                      currentString={blocks[rowIdx].join('')}
+                      currentIndex={colIdx}
+                      isComplete={completeRows.includes(rowIdx)}
                       key={column + colIdx}
                       value={column}
                       onChange={onChange}
